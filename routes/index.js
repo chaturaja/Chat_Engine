@@ -158,7 +158,6 @@ router.post('/createUser', function (req, res, next) {
             // console.log(e);
             res.json(e);
         });
-
 });
 
 module.exports = router;
