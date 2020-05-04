@@ -6,14 +6,14 @@ const fetch = require('node-fetch');
 router.get('/', function (req, res, next) {
     fetch('https://hasura-test-surya.herokuapp.com/v1/graphql', {
         method: 'POST', body: JSON.stringify({
-            query: 'mutation MyMutation {\n' +
-                '  insert_chatroom(objects: {}) {\n' +
-                '    affected_rows\n' +
-                '    returning {\n' +
-                '      id\n' +
-                '    }\n' +
-                '  }\n' +
-                '}',
+            query: `mutation MyMutation { +
+                  insert_chatroom(objects: {}) { 
+                    affected_rows 
+                    returning { 
+                      id 
+                    } 
+                  } 
+                }`,
             variables: {}
         })
     })
@@ -129,5 +129,36 @@ router.post('/createChatRoom', function (req, res, next) {
         });
 });
 
+router.post('/createUser', function (req, res, next) {
+    fetch('https://hasura-test-surya.herokuapp.com/v1/graphql', {
+        method: 'POST',
+        body: JSON.stringify({
+            query: `mutation createUser($user_name: String!) {
+                  insert_user(objects: {name: $user_name}) {
+                    affected_rows
+                    returning {
+                      id
+                    }
+                  }
+                }`,
+            variables: {
+                "user_name": req.body.user_name
+            }
+        }),
+        headers: {
+            "x-hasura-admin-secret": "ABC123"
+        }
+    })
+        .then(res => res.json()) // expecting a json response
+        .then(json => {
+            // console.log(json);
+            res.json(json);
+        })
+        .catch(e => {
+            // console.log(e);
+            res.json(e);
+        });
+
+});
 
 module.exports = router;
