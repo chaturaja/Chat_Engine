@@ -160,4 +160,34 @@ router.post('/createUser', function (req, res, next) {
         });
 });
 
+router.post('/sendMessage', function (req, res, next) {
+    fetch('https://hasura-test-surya.herokuapp.com/v1/graphql', {
+        method: 'POST',
+        body: JSON.stringify({
+            query: `mutation sendMessage($from: uuid!, $message: String!, $chatroom_id: uuid!) {
+                  insert_chatroom_chats(objects: {from: $from, message: $message, chatroom_id: $chatroom_id}) {
+                    affected_rows
+                  }
+                }`,
+            variables: {
+                "from": req.body.from,
+                "message": req.body.message,
+                "chatroom_id": req.body.chatroom_id
+            }
+        }),
+        headers: {
+            "x-hasura-admin-secret": "ABC123"
+        }
+    })
+        .then(res => res.json()) // expecting a json response
+        .then(json => {
+            // console.log(json);
+            res.json(json);
+        })
+        .catch(e => {
+            // console.log(e);
+            res.json(e);
+        });
+});
+
 module.exports = router;
